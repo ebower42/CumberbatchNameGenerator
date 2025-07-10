@@ -1,31 +1,38 @@
 from generator import Generator
 import os
 import discord
+from discord.ext import commands
+
+description = "A bot to generate alternate names for Benedict Cumberbatch."
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.messages = True
+
+bot = commands.Bot(command_prefix='!', description=description, intents=intents)
+name_api = Generator()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print('------')
 
 
-class Bot(discord.Client):
+@bot.command(name='batch')
+async def batch(ctx):
+    name = name_api.name()
+    await ctx.send(name)
 
-  def __init__(self):
-    super().__init__()
-    self.api = Generator()
-    self.TOKEN = os.environ['BOT_TOKEN']
-    
-    return
 
-  async def on_ready(self):
-    print('Logged on as {0}!'.format(self.user))
-    return
-  
-  async def on_message(self, message):
+def run(token=BOT_TOKEN):
+    print(f"Using token: {token}")
+    if token is None:
+        raise ValueError("The bot token is None. Please either set the BOT_TOKEN environment variable or pass a token "
+                         "directly.")
+    bot.run(token)
 
-    if(message.author == self.user):
-      return
-    
-    if(message.content.startswith("!batch")):
 
-      name = self.api.name()
-
-      await message.channel.send(name)
-      pass
-
-    return
+if __name__ == "__main__":
+    run()
