@@ -1,0 +1,29 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# Local env files (secrets)
+.env
+
+# Git and other VCS
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Misc
+*.swp
