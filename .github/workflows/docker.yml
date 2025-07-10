@@ -1,5 +1,8 @@
 name: Build and Push Discord Bot
 
+env:
+  IMAGE_NAME: cumberbatch-name-generator
+
 on:
   push:
     branches:
@@ -33,5 +36,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/CumberbatchNameGenerator:latest
-            ghcr.io/${{ github.repository_owner }}/CumberbatchNameGenerator:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
