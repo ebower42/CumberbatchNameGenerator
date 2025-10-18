@@ -24,3 +24,10 @@ class Generator:
     first = random.choice(self.givenPart1_list) + random.choice(self.givenPart2_list)
     last = random.choice(self.surnamePart1_list) + random.choice(self.surnamePart2_list)
     return first.capitalize() + " " + last.capitalize()
+
+if __name__ == "__main__":
+    gen = Generator()
+    p = Path('~', 'Piper TTS', 'names.txt').expanduser()
+    with open(p, 'w') as f:
+        for _ in range(100):
+            f.write(gen.name() + '.\n')
