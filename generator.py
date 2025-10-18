@@ -2,32 +2,49 @@ import random
 import json
 from pathlib import Path
 from typing import Union
+from piper import PiperVoice
+import wave
 
-PATH_TO_JSON = Path(__file__).parent / "words.json"
+PATH_TO_JSON = Path(__file__).parent / "phonemized_words.json"
+VOICE = PiperVoice.load("C:\\Users\\ebowe\\Piper TTS\\en_GB-alan-medium.onnx")
 
 
 class Generator:
 
-  def __init__(self, json_path: Union[Path, str]=PATH_TO_JSON):
+    def __init__(self, json_path: Union[Path, str]=PATH_TO_JSON):
+        with open(PATH_TO_JSON, 'r') as f:
+          word_list = json.load(f)
 
-    with open(PATH_TO_JSON, 'r') as f:
-      word_list = json.load(f)
-
-    self.givenPart1_list = word_list.get("givenPart1", ["Bene"])
-    self.givenPart2_list = word_list.get("givenPart2", ["dict"])
-    self.surnamePart1_list = word_list.get("surnamePart1", ["Cumber"])
-    self.surnamePart2_list = word_list.get("surnamePart2", ["batch"])
-
-    return
+        self.givenPart1_map = word_list.get("givenPart1", {"Bene": "bene"})
+        self.givenPart2_map = word_list.get("givenPart2", {"dict": "dict"})
+        self.surnamePart1_map = word_list.get("surnamePart1", {"Cumber": "cumber"})
+        self.surnamePart2_map = word_list.get("surnamePart2", {"batch": "batch"})
+        return
   
-  def name(self):
-    first = random.choice(self.givenPart1_list) + random.choice(self.givenPart2_list)
-    last = random.choice(self.surnamePart1_list) + random.choice(self.surnamePart2_list)
-    return first.capitalize() + " " + last.capitalize()
+    def name(self):
+        first_part_1 = random.choice(list(self.givenPart1_map.keys()))
+        first_part_2 = random.choice(list(self.givenPart2_map.keys()))
+        last_part_1 = random.choice(list(self.surnamePart1_map.keys()))
+        last_part_2 = random.choice(list(self.surnamePart2_map.keys()))
+        first_phone_part_1 = self.givenPart1_map[first_part_1]
+        first_phone_part_2 = self.givenPart2_map[first_part_2]
+        last_phone_part_1 = self.surnamePart1_map[last_part_1]
+        last_phone_part_2 = self.surnamePart2_map[last_part_2]
+        first = first_part_1 + first_part_2
+        last = last_part_1 + last_part_2
+        phone = first_phone_part_1 + first_phone_part_2 + " " + last_phone_part_1 + last_phone_part_2
+        return first.capitalize() + " " + last.capitalize(), phone
+
+    @staticmethod
+    def vocalize(phone):
+        phone = f"[[ {phone} ]]"
+        with wave.open("audio/output.wav", 'wb') as output:
+            VOICE.synthesize_wav(phone, output)
+
 
 if __name__ == "__main__":
     gen = Generator()
     p = Path('~', 'Piper TTS', 'names.txt').expanduser()
     with open(p, 'w') as f:
         for _ in range(100):
-            f.write(gen.name() + '.\n')
+            f.write(gen.name()[0] + '.\n')
