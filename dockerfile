@@ -1,19 +1,31 @@
 # Dockerfile
-
 FROM python:3.13-slim
+
+ENV PIPER_VOICES_DIR=/voices
+ENV APP_ROOT=/app
+ENV LOG_DIR=/log
+ENV AUDIO_DIR=/audio
+
+ENV PYTHONUNBUFFERED=1
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg libopus0 libsodium23 ca-certificates curl espeak \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install any needed packages
+WORKDIR ${APP_ROOT}
+
+# Copy requirements first for caching
+COPY requirements.txt ${APP_ROOT}/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy your bot source code
+COPY . ${APP_ROOT}/
 
 # Create a non-root user
 RUN useradd -m botuser
 
-# Install any needed packages
-WORKDIR /app
-
-# Copy requirements first for caching
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy your bot source code
-COPY . .
 
 # Use the non-root user
 USER botuser

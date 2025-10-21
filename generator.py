@@ -4,9 +4,14 @@ from pathlib import Path
 from typing import Union
 from piper import PiperVoice
 import wave
+import os
 
 PATH_TO_JSON = Path(__file__).parent / "phonemized_words.json"
-VOICE = PiperVoice.load("C:\\Users\\ebowe\\Piper TTS\\en_GB-alan-medium.onnx")
+VOICE_NAME = os.getenv("PIPER_VOICE", "en_GB-alan-medium")
+VOICES_DIR = os.getenv("PIPER_VOICES_DIR", "/voices")
+VOICE_FILE = Path(VOICES_DIR) / f"{VOICE_NAME}.onnx"
+VOICE = PiperVoice.load(VOICE_FILE)
+AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
 
 
 class Generator:
@@ -38,13 +43,17 @@ class Generator:
     @staticmethod
     def vocalize(phone):
         phone = f"[[ {phone} ]]"
-        with wave.open("audio/output.wav", 'wb') as output:
+        wav_file = Path(AUDIO_DIR) / f"output.wav"
+        with wave.open(str(wav_file), 'wb') as output:
             VOICE.synthesize_wav(phone, output)
 
 
-if __name__ == "__main__":
+def main():
     gen = Generator()
     p = Path('~', 'Piper TTS', 'names.txt').expanduser()
     with open(p, 'w') as f:
         for _ in range(100):
             f.write(gen.name()[0] + '.\n')
+
+if __name__ == "__main__":
+    main()
