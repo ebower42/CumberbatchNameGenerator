@@ -1,11 +1,16 @@
 # Dockerfile
 FROM python:3.13-slim
 
+LABEL maintainer="Eric Bower"
+
 ENV PIPER_VOICES_DIR=/voices
 ENV APP_ROOT=/app
 ENV LOG_DIR=/log
 ENV AUDIO_DIR=/audio
 ENV PYTHONUNBUFFERED=1
+
+ARG IMAGE_VERSION
+ENV IMAGE_VERSION=${IMAGE_VERSION}
 
 # System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
