@@ -4,7 +4,7 @@ set -euo pipefail
 : "${PIPER_VOICES_DIR:=/voices}"
 : "${PIPER_VOICE:=en_GB-alan-medium}"
 
-PIPER_VOICE_FILE="$PIPER_VOICES_DIR/$PIPER_VOICE.onyx"
+PIPER_VOICE_FILE="$PIPER_VOICES_DIR/$PIPER_VOICE.onnx"
 
 echo "[entrypoint] Voices dir: $PIPER_VOICES_DIR"
 mkdir -p "$PIPER_VOICES_DIR"
