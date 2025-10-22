@@ -25,7 +25,7 @@ WORKDIR ${APP_ROOT}
 COPY requirements.txt ${APP_ROOT}/
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python -m piper.download_voices --download-dir ${PIPER_VOICES_DIR} ${PIPER_VOICE}
+RUN python -m piper.download_voices --debug --download-dir ${PIPER_VOICES_DIR} ${PIPER_VOICE}
 
 # Copy your bot source code
 COPY . ${APP_ROOT}/
