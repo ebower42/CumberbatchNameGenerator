@@ -20,8 +20,6 @@ BOT_DESCRIPTION = ("A bot to generate alternate names for Benedict Cumberbatch.\
                    f"\n"
                    f"Running with no command is equivalent to running '{RAW_PREFIX_SHORT} gen'\n")
 
-AUTOSPEAK_HELP = "If autospeak is on, the bot automatically speaks any generated names"
-
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
