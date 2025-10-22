@@ -25,18 +25,17 @@ WORKDIR ${APP_ROOT}
 COPY requirements.txt ${APP_ROOT}/
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Copy your bot source code
 COPY . ${APP_ROOT}/
 
 # Create a non-root user
 RUN useradd -m botuser
 
-
 # Use the non-root user
 USER botuser
-  
-RUN python -m piper.download_voices --debug --download-dir ${PIPER_VOICES_DIR} ${PIPER_VOICE}
+
+# Download piper voice
+CMD ["python", "-m", "piper.download_voices", "--debug", "--download-dir", "${PIPER_VOICES_DIR}", "${PIPER_VOICE}"]
 
 # Run your bot
 CMD ["python", "bot.py"]
