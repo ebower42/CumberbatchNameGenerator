@@ -28,14 +28,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy your bot source code
 COPY . ${APP_ROOT}/
 
+# Add entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Create a non-root user
 RUN useradd -m botuser
 
 # Use the non-root user
 USER botuser
 
-# Download piper voice
-CMD ["python", "-m", "piper.download_voices", "--debug", "--download-dir", "${PIPER_VOICES_DIR}", "${PIPER_VOICE}"]
-
+ENTRYPOINT ["docker-entrypoint.sh"]
 # Run your bot
 CMD ["python", "bot.py"]
