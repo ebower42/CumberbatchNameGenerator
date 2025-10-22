@@ -13,6 +13,9 @@ ENV PYTHONUNBUFFERED=1
 ARG IMAGE_VERSION
 ENV IMAGE_VERSION=${IMAGE_VERSION}
 
+# Create necessary directories
+RUN mkdir -p ${APP_ROOT} ${LOG_DIR} ${AUDIO_DIR} ${PIPER_VOICES_DIR}
+
 # System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg libopus0 libsodium23 ca-certificates curl espeak \
