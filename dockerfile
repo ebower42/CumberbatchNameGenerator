@@ -5,7 +5,6 @@ ENV PIPER_VOICES_DIR=/voices
 ENV APP_ROOT=/app
 ENV LOG_DIR=/log
 ENV AUDIO_DIR=/audio
-
 ENV PYTHONUNBUFFERED=1
 
 # System dependencies
