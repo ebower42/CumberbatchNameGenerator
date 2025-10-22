@@ -38,6 +38,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Create a non-root user
 RUN useradd -m botuser
 
+RUN chown -R botuser:botuser ${APP_ROOT} ${LOG_DIR} ${AUDIO_DIR} ${PIPER_VOICES_DIR}
+
 # Use the non-root user
 USER botuser
 

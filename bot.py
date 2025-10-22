@@ -114,6 +114,7 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
         args = ctx.message.content.split()
         cmd = args[1] if len(args) > 1 else ""
         return await ctx.reply(f"Unknown command: '{cmd}'\nUse '{RAW_PREFIX} help'")
+    print(str(error))
     return await ctx.reply(f"An error occurred: {str(error)}", mention_author=False)
 
 
