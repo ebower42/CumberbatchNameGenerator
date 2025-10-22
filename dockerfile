@@ -7,6 +7,7 @@ ENV PIPER_VOICES_DIR=/voices
 ENV APP_ROOT=/app
 ENV LOG_DIR=/log
 ENV AUDIO_DIR=/audio
+ENV PIPER_VOICE=en_GB-alan-medium
 ENV PYTHONUNBUFFERED=1
 
 ARG IMAGE_VERSION
@@ -23,6 +24,8 @@ WORKDIR ${APP_ROOT}
 # Copy requirements first for caching
 COPY requirements.txt ${APP_ROOT}/
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN python -m piper.download_voices --download-dir ${PIPER_VOICES_DIR} ${PIPER_VOICE}
 
 # Copy your bot source code
 COPY . ${APP_ROOT}/
