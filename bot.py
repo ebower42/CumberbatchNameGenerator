@@ -5,6 +5,7 @@ from discord.ext import commands
 from typing import Any, Optional
 import logging
 from pathlib import Path
+from eleven_labs_api import ElevenLabsAPI
 
 DEBUG = os.getenv("DEBUG")
 AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
@@ -14,6 +15,7 @@ RAW_PREFIX = "!batch"
 RAW_PREFIX_SHORT = "!b"
 SPACE_PREFIX = RAW_PREFIX + " "
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+ELEVEN_LABS_TOKEN = os.getenv("ELEVEN_LABS_TOKEN")
 BOT_DESCRIPTION = ("A bot to generate alternate names for Benedict Cumberbatch.\n"
                    "\n"
                    f"Usage: {RAW_PREFIX_SHORT} [command] [arguments]\n"
@@ -46,6 +48,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(SPACE_PREFIX, "!b "
                    intents=intents,
                    help_command=defaultHelpCommand)
 name_api = Generator()
+eleven_labs_api = ElevenLabsAPI(ELEVEN_LABS_TOKEN)
 
 g_last_name = "Benedict Cumberbatch"
 g_last_phone = "benedict cumberbatch"
@@ -62,8 +65,12 @@ async def _speak(ctx: commands.Context) -> Optional[Any]:
     if not vc or not vc.is_connected():
         return await ctx.reply("I am not connected to a voice channel.", mention_author=False)
     if not vc.is_playing():
-        name_api.vocalize(g_last_phone)
-        audio_source = Path(AUDIO_DIR) / "output.wav"
+        count = eleven_labs_api.get_remaining_character_count()
+        if count < 20:
+            name_api.vocalize(g_last_phone)
+            audio_source = Path(AUDIO_DIR) / "output.wav"
+        else:
+            audio_source = eleven_labs_api.get_spoken_name(g_last_name, AUDIO_DIR)
         return vc.play(discord.FFmpegPCMAudio(executable=FFMPEG_EXEC, source=str(audio_source)))
     else:
         return await ctx.reply("Audio is already playing.", mention_author=False)
