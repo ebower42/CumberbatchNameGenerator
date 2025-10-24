@@ -163,3 +163,4 @@ cython_debug/
 #.idea/
 
 /phonemize_words.py
+/test_eleven_labs.py
