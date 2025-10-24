@@ -5,6 +5,7 @@ from discord.ext import commands
 from typing import Any, Optional
 import logging
 from pathlib import Path
+from eleven_labs_api import ElevenLabsAPI
 
 DEBUG = os.getenv("DEBUG")
 AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
@@ -14,6 +15,7 @@ RAW_PREFIX = "!batch"
 RAW_PREFIX_SHORT = "!b"
 SPACE_PREFIX = RAW_PREFIX + " "
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+ELEVEN_LABS_TOKEN = os.getenv("ELEVEN_LABS_TOKEN")
 BOT_DESCRIPTION = ("A bot to generate alternate names for Benedict Cumberbatch.\n"
                    "\n"
                    f"Usage: {RAW_PREFIX_SHORT} [command] [arguments]\n"
@@ -34,18 +36,22 @@ class CustomHelp(commands.DefaultHelpCommand):
         max_size = super().get_max_size(_commands) + self.indent
         return super().add_indented_commands(_commands, heading=heading, max_size=max_size)
 
-defaultHelpCommand = CustomHelp(
-    show_parameter_descriptions=False,
-    no_category="Commands",
-    command_attrs={
-        "aliases": ["?"],
-        "help": "Get general help information or help about a specific command"
-    }
+bot = commands.Bot(
+    command_prefix=commands.when_mentioned_or(SPACE_PREFIX, "!b "),
+    description=BOT_DESCRIPTION,
+    intents=intents,
+    help_command=CustomHelp(
+        show_parameter_descriptions=False,
+        no_category="Commands",
+        command_attrs={
+            "aliases": ["?"],
+            "help": "Get general help information or help about a specific command"
+        }
+    )
 )
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(SPACE_PREFIX, "!b "), description=BOT_DESCRIPTION,
-                   intents=intents,
-                   help_command=defaultHelpCommand)
+
 name_api = Generator()
+eleven_labs_api = ElevenLabsAPI(ELEVEN_LABS_TOKEN)
 
 g_last_name = "Benedict Cumberbatch"
 g_last_phone = "benedict cumberbatch"
@@ -62,8 +68,12 @@ async def _speak(ctx: commands.Context) -> Optional[Any]:
     if not vc or not vc.is_connected():
         return await ctx.reply("I am not connected to a voice channel.", mention_author=False)
     if not vc.is_playing():
-        name_api.vocalize(g_last_phone)
-        audio_source = Path(AUDIO_DIR) / "output.wav"
+        _count = eleven_labs_api.get_remaining_character_count()
+        if _count < 20:
+            name_api.vocalize(g_last_phone)
+            audio_source = Path(AUDIO_DIR) / "output.wav"
+        else:
+            audio_source = eleven_labs_api.get_spoken_name(g_last_name, AUDIO_DIR)
         return vc.play(discord.FFmpegPCMAudio(executable=FFMPEG_EXEC, source=str(audio_source)))
     else:
         return await ctx.reply("Audio is already playing.", mention_author=False)
@@ -76,7 +86,6 @@ async def _gen(ctx: commands.Context):
     await ctx.reply(name)
     if g_autospeak:
         await _speak(ctx)
-
 
 
 @bot.event
@@ -174,6 +183,14 @@ async def autospeak(ctx: commands.Context, subcmd: str = "on"):
     else:
         g_autospeak = False
         return await ctx.reply(f"Autospeak off")
+
+
+# Hidden Commands
+@bot.command(name="count",
+             hidden=True)
+async def count(ctx: commands.Context):
+    cnt = eleven_labs_api.get_remaining_character_count()
+    return await ctx.reply(f"{cnt} characters")
 
 
 def run(token=BOT_TOKEN):
