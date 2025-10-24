@@ -69,7 +69,7 @@ async def _speak(ctx: commands.Context) -> Optional[Any]:
         return await ctx.reply("I am not connected to a voice channel.", mention_author=False)
     if not vc.is_playing():
         _count = eleven_labs_api.get_remaining_character_count()
-        if _count < 20 and not DEBUG:
+        if _count < 20 or DEBUG:
             name_api.vocalize(g_last_phone)
             audio_source = Path(AUDIO_DIR) / "output.wav"
         else:
