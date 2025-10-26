@@ -23,15 +23,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy bot source code
 COPY ./src/* ${APP_ROOT}/
+COPY requirements.txt ${APP_ROOT}
 
-# Add entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+WORKDIR ${APP_ROOT}
 
 # Install any needed packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR ${APP_ROOT}
+# Add entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create a non-root user
 RUN useradd -m botuser
