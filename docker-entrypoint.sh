@@ -7,7 +7,6 @@ set -euo pipefail
 PIPER_VOICE_FILE="$PIPER_VOICES_DIR/$PIPER_VOICE.onnx"
 
 echo "[entrypoint] Voices dir: $PIPER_VOICES_DIR"
-mkdir -p "$PIPER_VOICES_DIR"
 
 if [[ ! -f "$PIPER_VOICE_FILE" ]]; then
   echo "[entrypoint] Voice not found at $PIPER_VOICE_FILE, downloading..."
