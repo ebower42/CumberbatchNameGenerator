@@ -1,21 +1,16 @@
 from generator import Generator
-import os
 import discord
 from discord.ext import commands
 from typing import Any, Optional
 import logging
 from pathlib import Path
 from eleven_labs_api import ElevenLabsAPI
-
-DEBUG = os.getenv("DEBUG")
-AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
-FFMPEG_EXEC = os.getenv("FFMPEG_EXEC", "ffmpeg")
+import asyncio
+from user_settings import BOT_TOKEN, ELEVEN_LABS_TOKEN, AUDIO_DIR, FFMPEG_EXEC, AUTO_VOICE_LEAVE_DELAY, DEBUG
 
 RAW_PREFIX = "!batch"
 RAW_PREFIX_SHORT = "!b"
 SPACE_PREFIX = RAW_PREFIX + " "
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-ELEVEN_LABS_TOKEN = os.getenv("ELEVEN_LABS_TOKEN")
 BOT_DESCRIPTION = ("A bot to generate alternate names for Benedict Cumberbatch.\n"
                    "\n"
                    f"Usage: {RAW_PREFIX_SHORT} [command] [arguments]\n"
@@ -25,6 +20,16 @@ BOT_DESCRIPTION = ("A bot to generate alternate names for Benedict Cumberbatch.\
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
+intents.voice_states = True
+
+name_api = Generator()
+eleven_labs_api = ElevenLabsAPI(ELEVEN_LABS_TOKEN)
+
+g_last_name = "Benedict Cumberbatch"
+g_last_phone = "benedict cumberbatch"
+g_autospeak = False
+
+voice_leave_tasks: dict[int, asyncio.Task] = {}
 
 
 class CustomHelp(commands.DefaultHelpCommand):
@@ -50,16 +55,43 @@ bot = commands.Bot(
     )
 )
 
-name_api = Generator()
-eleven_labs_api = ElevenLabsAPI(ELEVEN_LABS_TOKEN)
-
-g_last_name = "Benedict Cumberbatch"
-g_last_phone = "benedict cumberbatch"
-g_autospeak = False
-
 
 def vc_for(guild: discord.Guild) -> discord.VoiceClient | None:
     return discord.utils.get(bot.voice_clients, guild=guild)
+
+
+def num_humans_in_voice(channel: discord.VoiceChannel | None) -> int:
+    if not channel:
+        return 0
+    return sum(1 for m in channel.members if not m.bot)
+
+
+async def schedule_voice_leave(guild: discord.Guild) -> None:
+    if task := voice_leave_tasks.pop(guild.id, None):
+        task.cancel()
+
+
+    async def _worker():
+        try:
+            await asyncio.sleep(AUTO_VOICE_LEAVE_DELAY)
+            vc = vc_for(guild)
+            if not vc or not vc.is_connected():
+                return
+
+            if num_humans_in_voice(vc.channel) == 0:
+                await vc.disconnect(force=True)
+        except asyncio.CancelledError:
+            pass
+
+    print(f"All users left voice channel for guild '{guild.name}', leaving in {AUTO_VOICE_LEAVE_DELAY} seconds")
+    voice_leave_tasks[guild.id] = asyncio.create_task(_worker())
+
+
+def cancel_voice_leave(guild: discord.Guild, reason: Optional[str] = None) -> None:
+    if task := voice_leave_tasks.pop(guild.id, None):
+        task.cancel()
+    if reason:
+        print(reason)
 
 
 async def _speak(ctx: commands.Context) -> Optional[Any]:
@@ -127,6 +159,30 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
     return await ctx.reply(f"An error occurred: {str(error)}", mention_author=False)
 
 
+@bot.event
+async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    guild = member.guild
+    vc = vc_for(guild)
+    if not vc or not vc.is_connected():
+        return
+
+    bot_channel = vc.channel
+    # If the event didn't touch the bot's channel, ignore
+    touched = {before.channel, after.channel}
+    if bot_channel not in touched:
+        return
+
+    # If someone joined the bot's channel, cancel any pending leave
+    if after.channel is bot_channel and not member.bot:
+        cancel_voice_leave(guild, "User joined active voice channel, cancelling auto-leave")
+        return
+
+    # If someone left/moved away from the bot's channel, check if it's empty of humans
+    if before.channel is bot_channel:
+        if num_humans_in_voice(bot_channel) == 0:
+            await schedule_voice_leave(guild)
+
+
 @bot.command(name="gen",
              help="Generate a new name. (Hint: You can also just type '!b')")
 async def gen(ctx):
@@ -146,6 +202,7 @@ async def join(ctx: commands.Context):
         await vc.move_to(channel)
     else:
         await channel.connect()
+    cancel_voice_leave(ctx.guild)
     return await ctx.reply(f"Joined {channel.name}.", mention_author=False)
 
 
@@ -158,6 +215,7 @@ async def leave(ctx: commands.Context):
         return await ctx.reply("I am not connected to a voice channel.", mention_author=False)
     await vc.disconnect()
     g_autospeak = False
+    cancel_voice_leave(ctx.guild)
     return await ctx.reply("Disconnected.", mention_author=False)
 
 
