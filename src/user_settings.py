@@ -5,7 +5,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 ELEVEN_LABS_TOKEN = os.getenv("ELEVEN_LABS_TOKEN")
 
 # Voice synthesis
-AUDIO_DIR = os.getenv("AUDIO_DIR", "../audio")
+AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
 FFMPEG_EXEC = os.getenv("FFMPEG_EXEC", "ffmpeg")
 
 # Piper
