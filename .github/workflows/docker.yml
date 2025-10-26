@@ -6,11 +6,17 @@ env:
 on:
   push:
     branches:
+      - main
       - beta
-      - main  # Trigger build on pushes to main branch
     tags:
       - 'v*.*.*'          # Trigger build on version tags like v1.0.0
       - 'v*.*.*-beta.*'   # Trigger build on beta tags like v1.0.0-beta.1
+    paths:
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'docker_entrypoint.sh'
+      - '.dockerignore'
+      - 'src/**'
 
 permissions:
   contents: read
