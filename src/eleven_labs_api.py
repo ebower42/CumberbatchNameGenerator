@@ -3,6 +3,7 @@ from elevenlabs.types import VoiceSettings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
+from user_settings import ELEVEN_LABS_VOICE_ID
 
 MODEL_ID = "eleven_turbo_v2_5"
 OUTPUT_FORMAT = "mp3_44100_128"
@@ -18,7 +19,7 @@ class ElevenLabsAPI:
         self.update_character_count()
 
     def get_spoken_name(self, name: str, audio_dir: Union[Path, str],
-                        voice_id: str = CHARLES_VOICE_ID, speed: float = 1.0,
+                        voice_id: str = ELEVEN_LABS_VOICE_ID, speed: float = 1.0,
                         regen: bool = False) -> Path:
         name_id = name.replace(" ", "_")
         file = Path(audio_dir) / f"{name_id}.mp3"
