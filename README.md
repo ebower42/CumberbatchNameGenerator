@@ -35,7 +35,7 @@ Install the required packages
 
 In order to run the bot properly, you must have a number of environment variables specified:
 - `AUDIO_DIR` - The directory to put generated audio files
-- `PIPER_VOICE` - The voice id of the piper voice, defaults to `en_GB-alan-medium`
+- `PIPER_VOICE_ID` - The voice id of the piper voice, defaults to `en_GB-alan-medium`
 - `PIPER_VOICES_DIR` - The directory containing the piper voice onnx and json files
 - `FFMPEG_EXEC` - The path to the ffmpeg executable. You only need to specify this if `ffmpeg` is not part of your 
   system path.

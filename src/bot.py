@@ -3,10 +3,8 @@ import discord
 from discord.ext import commands
 from typing import Any, Optional
 import logging
-from pathlib import Path
-from eleven_labs_api import ElevenLabsAPI
 import asyncio
-from user_settings import BOT_TOKEN, ELEVEN_LABS_TOKEN, AUDIO_DIR, FFMPEG_EXEC, AUTO_VOICE_LEAVE_DELAY, DEBUG
+from user_settings import BOT_TOKEN, ELEVEN_LABS_TOKEN, FFMPEG_EXEC, AUTO_VOICE_LEAVE_DELAY, DEBUG
 
 RAW_PREFIX = "!batch"
 RAW_PREFIX_SHORT = "!b"
@@ -22,8 +20,7 @@ intents.message_content = True
 intents.messages = True
 intents.voice_states = True
 
-name_api = Generator()
-eleven_labs_api = ElevenLabsAPI(ELEVEN_LABS_TOKEN)
+name_api = Generator(eleven_labs_api_token=ELEVEN_LABS_TOKEN)
 
 g_last_name = "Benedict Cumberbatch"
 g_last_phone = "benedict cumberbatch"
@@ -70,7 +67,6 @@ async def schedule_voice_leave(guild: discord.Guild) -> None:
     if task := voice_leave_tasks.pop(guild.id, None):
         task.cancel()
 
-
     async def _worker():
         try:
             await asyncio.sleep(AUTO_VOICE_LEAVE_DELAY)
@@ -95,24 +91,19 @@ def cancel_voice_leave(guild: discord.Guild, reason: Optional[str] = None) -> No
 
 
 async def _speak(ctx: commands.Context) -> Optional[Any]:
-    global g_autospeak
     vc = vc_for(ctx.guild)
     if not vc or not vc.is_connected():
         return await ctx.reply("I am not connected to a voice channel.", mention_author=False)
     if not vc.is_playing():
-        _count = eleven_labs_api.get_remaining_character_count()
-        if _count < 20 or DEBUG:
-            name_api.vocalize(g_last_phone)
-            audio_source = Path(AUDIO_DIR) / "output.wav"
-        else:
-            audio_source = eleven_labs_api.get_spoken_name(g_last_name, AUDIO_DIR)
+        audio_source = name_api.speak(g_last_name, g_last_phone)
         return vc.play(discord.FFmpegPCMAudio(executable=FFMPEG_EXEC, source=str(audio_source)))
     else:
         return await ctx.reply("Audio is already playing.", mention_author=False)
 
+
 async def _gen(ctx: commands.Context):
     global g_last_name, g_last_phone, g_autospeak
-    name, phone = name_api.name()
+    name, phone = name_api.new_name()
     g_last_name = name
     g_last_phone = phone
     await ctx.reply(name)
@@ -247,7 +238,7 @@ async def autospeak(ctx: commands.Context, subcmd: str = "on"):
 @bot.command(name="count",
              hidden=True)
 async def count(ctx: commands.Context):
-    cnt = eleven_labs_api.get_remaining_character_count()
+    cnt = name_api.get_remaining_eleven_labs_character_count()
     return await ctx.reply(f"{cnt} characters")
 
 

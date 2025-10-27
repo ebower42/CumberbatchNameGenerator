@@ -3,25 +3,22 @@ from elevenlabs.types import VoiceSettings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
+from user_settings import ELEVEN_LABS_VOICE_ID
 
 MODEL_ID = "eleven_turbo_v2_5"
 OUTPUT_FORMAT = "mp3_44100_128"
-MAX_CHARACTERS = 10000
+
 
 class ElevenLabsAPI:
-
-    @dataclass
-    class VoiceIDs:
-        Clyde = "wyWA56cQNU2KqUW4eCsI"
-        Charles = "zNsotODqUhvbJ5wMG7Ei"
-
     def __init__(self, token: str):
         self.client = ElevenLabs(api_key=token)
         self.character_count = 0
+        self.character_limit = 0
+        self.remaining_character_count = 0
         self.update_character_count()
 
     def get_spoken_name(self, name: str, audio_dir: Union[Path, str],
-                        voice_id: str = VoiceIDs.Charles, speed: float = 1.0,
+                        voice_id: str = ELEVEN_LABS_VOICE_ID, speed: float = 1.0,
                         regen: bool = False) -> Path:
         name_id = name.replace(" ", "_")
         file = Path(audio_dir) / f"{name_id}.mp3"
@@ -46,6 +43,5 @@ class ElevenLabsAPI:
     def update_character_count(self):
         subscription = self.client.user.subscription.get()
         self.character_count = subscription.character_count
-
-    def get_remaining_character_count(self):
-        return MAX_CHARACTERS - self.character_count
+        self.character_limit = subscription.character_limit
+        self.remaining_character_count = self.character_limit - self.character_count
