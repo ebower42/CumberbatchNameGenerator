@@ -14,7 +14,7 @@ PIPER_VOICE_ID = os.getenv("PIPER_VOICE_ID", _LEGACY_PIPER_VOICE)
 PIPER_VOICES_DIR = os.getenv("PIPER_VOICES_DIR", "/voices")
 
 # ElevenLabs
-ELEVEN_LABS_VOICE_ID = os.getenv("ELEVEN_LABS_VOICE_ID", "zNsotODqUhvbJ5wMG7Ei")
+ELEVEN_LABS_VOICE_ID = os.getenv("ELEVEN_LABS_VOICE_ID", "zNsotODqUhvbJ5wMG7Ei") # Voice ID for "Charles"
 
 # Discord
 AUTO_VOICE_LEAVE_DELAY = int(os.getenv("AUTO_VOICE_LEAVE_DELAY", 20))

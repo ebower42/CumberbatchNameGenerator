@@ -7,7 +7,6 @@ from user_settings import ELEVEN_LABS_VOICE_ID
 
 MODEL_ID = "eleven_turbo_v2_5"
 OUTPUT_FORMAT = "mp3_44100_128"
-CHARLES_VOICE_ID = "zNsotODqUhvbJ5wMG7Ei"
 
 
 class ElevenLabsAPI:
