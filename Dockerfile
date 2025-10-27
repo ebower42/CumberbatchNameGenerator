@@ -23,7 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy bot source code
 COPY ./src/* ${APP_ROOT}/
-COPY requirements.txt ${APP_ROOT}
+COPY requirements.txt ${APP_ROOT}/
+COPY LICENSE ${APP_ROOT}/
 
 WORKDIR ${APP_ROOT}
 
