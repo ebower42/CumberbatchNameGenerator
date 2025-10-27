@@ -3,10 +3,10 @@ from elevenlabs.types import VoiceSettings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
+from user_settings import MAX_ELEVEN_LABS_CHARACTERS
 
 MODEL_ID = "eleven_turbo_v2_5"
 OUTPUT_FORMAT = "mp3_44100_128"
-MAX_CHARACTERS = 10000
 
 class ElevenLabsAPI:
 
@@ -48,4 +48,4 @@ class ElevenLabsAPI:
         self.character_count = subscription.character_count
 
     def get_remaining_character_count(self):
-        return MAX_CHARACTERS - self.character_count
+        return MAX_ELEVEN_LABS_CHARACTERS - self.character_count

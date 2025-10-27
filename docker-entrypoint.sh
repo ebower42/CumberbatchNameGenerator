@@ -2,9 +2,9 @@
 set -euo pipefail
 
 : "${PIPER_VOICES_DIR:=/voices}"
-: "${PIPER_VOICE:=en_GB-alan-medium}"
+: "${PIPER_VOICE_ID:=en_GB-alan-medium}"
 
-PIPER_VOICE_FILE="$PIPER_VOICES_DIR/$PIPER_VOICE.onnx"
+PIPER_VOICE_FILE="$PIPER_VOICES_DIR/$PIPER_VOICE_ID.onnx"
 
 echo "[entrypoint] Voices dir: $PIPER_VOICES_DIR"
 
@@ -13,7 +13,7 @@ if [[ ! -f "$PIPER_VOICE_FILE" ]]; then
   python -m piper.download_voices \
     --debug \
     --download-dir "$PIPER_VOICES_DIR" \
-    "$PIPER_VOICE"
+    "$PIPER_VOICE_ID"
 else
   echo "[entrypoint] Voice found at $PIPER_VOICE_FILE"
 fi
