@@ -111,7 +111,7 @@ The voice ID for this URL is `en_GB-alan-medium`.
 
 You have two ways to download the voice files. Whichever way you choose, make sure they are in the directory specified
 by the `PIPER_VOICES_DIR` environment variable. Additionally, make sure you have the `PIPER_VOICE` environment variable
-set to whichever voice you choose.
+set to the ID of whichever voice you choose.
 #### Download Using the `piper` Python Package
 If you have the `piper` package installed, you can run
 
