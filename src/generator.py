@@ -13,7 +13,6 @@ VOICE = PiperVoice.load(VOICE_FILE)
 
 
 class Generator:
-
     def __init__(self, json_path: Union[Path, str]=PATH_TO_JSON, eleven_labs_api_token: Optional[str] = None):
         with open(str(json_path), 'r') as f:
           word_list = json.load(f)
@@ -44,7 +43,7 @@ class Generator:
         return first.capitalize() + " " + last.capitalize(), phone
 
     def speak(self, name: str, phone: Optional[str] = None) -> Path:
-        cnt = 0 if self.eleven_labs_api is None else self.eleven_labs_api.get_remaining_character_count()
+        cnt = 0 if self.eleven_labs_api is None else self.eleven_labs_api.remaining_character_count
         if cnt < 20:
             phone = f"[[ {phone} ]]" if phone else name
             audio_file = Path(AUDIO_DIR) / f"output.wav"
@@ -56,7 +55,7 @@ class Generator:
         return audio_file
 
     def get_remaining_eleven_labs_character_count(self):
-        return 0 if self.eleven_labs_api is None else self.eleven_labs_api.get_remaining_character_count()
+        return 0 if self.eleven_labs_api is None else self.eleven_labs_api.remaining_character_count
 
 
 def main():
