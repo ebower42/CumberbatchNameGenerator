@@ -20,7 +20,7 @@ The image can be pulled from `ghcr.io/ebower42/cumberbatch-name-generator:latest
 
 ### Source Code
 Install the following software:
-- [Python 3.14](https://www.python.org/downloads/)
+- [Python 3.13](https://www.python.org/downloads/)
 - [espeak-ng](https://github.com/espeak-ng/espeak-ng)
 - [FFMPEG](https://www.ffmpeg.org/)
 
