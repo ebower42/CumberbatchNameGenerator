@@ -9,8 +9,7 @@ AUDIO_DIR = os.getenv("AUDIO_DIR", "/audio")
 FFMPEG_EXEC = os.getenv("FFMPEG_EXEC", "ffmpeg")
 
 # Piper
-_LEGACY_PIPER_VOICE = os.getenv("PIPER_VOICE", "en_GB-alan-medium")
-PIPER_VOICE_ID = os.getenv("PIPER_VOICE_ID", _LEGACY_PIPER_VOICE)
+PIPER_VOICE_ID = os.getenv("PIPER_VOICE_ID", "en_GB-alan-medium")
 PIPER_VOICES_DIR = os.getenv("PIPER_VOICES_DIR", "/voices")
 
 # ElevenLabs
